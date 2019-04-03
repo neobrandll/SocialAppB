@@ -79,36 +79,27 @@ exports.destroy = (req, res) => {
 exports.index = (req, res) => {
 	const page = (req.query.page > 0 ? req.query.page : 1) - 1;
 	const perPage = 5;
-	const options = {
-		perPage: perPage,
-		page: page
+	let tweets;
+	const criteriaParameters = [...req.user.following]
+	criteriaParameters.push(req.user._id);
+	const criteria = {
+		user: criteriaParameters
 	};
-	let followingCount = req.user.following.length;
-	let followerCount = req.user.followers.length;
-	let tweets, tweetCount, pageViews, analytics;
-	User.countUserTweets(req.user._id).then(result => {
-		tweetCount = result;
-	});
-	Tweet.list(options)
+	Tweet.list({
+		perPage,
+		page,
+		criteria
+	})
 		.then(result => {
 			tweets = result;
-			return Tweet.countTotalTweets();
+			return Tweet.countTotalTweets(criteria);
 		})
-		.then(result => {
-			pageViews = result;
-			return Analytics.list({perPage: 15});
-		})
-		.then(result => {
-			analytics = result;
+		.then( totalTweets => {
 			res.json({
 				title: "List of Tweets",
 				tweets: tweets,
-				analytics: analytics,
 				page: page + 1,
-				tweetCount: tweetCount,
-				followerCount: followerCount,
-				followingCount: followingCount,
-				pages: Math.ceil(pageViews / perPage)
+				pages: Math.ceil(tweets.length / perPage)
 			});
 		})
 		.catch(error => {
@@ -116,3 +107,45 @@ exports.index = (req, res) => {
 			res.status(500).json({"error": "Server error"});
 		});
 };
+
+
+// exports.index = (req, res) => {
+// 	const page = (req.query.page > 0 ? req.query.page : 1) - 1;
+// 	const perPage = 5;
+// 	const options = {
+// 		perPage: perPage,
+// 		page: page
+// 	};
+// 	let followingCount = req.user.following.length;
+// 	let followerCount = req.user.followers.length;
+// 	let tweets, tweetCount, pageViews, analytics;
+// 	User.countUserTweets(req.user._id).then(result => {
+// 		tweetCount = result;
+// 	});
+// 	Tweet.list(options)
+// 		.then(result => {
+// 			tweets = result;
+// 			return Tweet.countTotalTweets();
+// 		})
+// 		.then(result => {
+// 			pageViews = result;
+// 			return Analytics.list({perPage: 15});
+// 		})
+// 		.then(result => {
+// 			analytics = result;
+// 			res.json({
+// 				title: "List of Tweets",
+// 				tweets: tweets,
+// 				analytics: analytics,
+// 				page: page + 1,
+// 				tweetCount: tweetCount,
+// 				followerCount: followerCount,
+// 				followingCount: followingCount,
+// 				pages: Math.ceil(pageViews / perPage)
+// 			});
+// 		})
+// 		.catch(error => {
+// 			logger.error(error);
+// 			res.status(500).json({"error": "Server error"});
+// 		});
+// };

@@ -130,8 +130,8 @@ TweetSchema.statics = {
 			.populate("user", "name username provider profileImage")
 			.populate("comments.user")
 			.sort({createdAt: -1})
-			.limit(options.perPage)
-			.skip(options.perPage * options.page);
+			// .limit(options.perPage)
+			// .skip(options.perPage * options.page);
 	},
 	// List tweets
 	limitedList: function (options) {
