@@ -1,0 +1,9 @@
+node_modules/*
+npm-debug.log
+.vscode/*
+.idea
+.DS_Store
+.sass-cache
+public/img/uploads/messages/*
+public/img/uploads/profile/*
+public/img/uploads/tweets/*
